@@ -1,0 +1,35 @@
+{
+	"schemaVersion": 1,
+	"id": "autototem",
+	"version": "${version}",
+	"name": "Auto Totem",
+	"description": "Smart, customizable auto-totem mod with per-world, singleplayer, and multiplayer isolation.",
+	"authors": [
+		"Fayber"
+	],
+	"contact": {
+		"homepage": "https://github.com/Fayberr/Auto-Totem-Minecraft-Mod",
+		"sources": "https://github.com/Fayberr/Auto-Totem-Minecraft-Mod"
+	},
+	"license": "GPL-3.0-or-later",
+	"icon": "assets/autototem/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"net.fayber.autototem.AutoTotemClient"
+		],
+		"modmenu": [
+			"net.fayber.autototem.compat.AutoTotemModMenu"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=${loader_version}",
+		"minecraft": ">=26.2 <26.3",
+		"java": ">=25",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"modmenu": "*",
+		"cloth-config": "*"
+	}
+}
