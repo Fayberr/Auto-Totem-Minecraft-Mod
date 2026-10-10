@@ -6,75 +6,56 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ContainerInput;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 public class TotemEquipper {
-    private static int tickCooldown = 0;
+    private static final int OFFHAND_BUTTON = 40;
+    private static int cooldown = 0;
 
     public static void onClientTick(Minecraft mc) {
-        if (tickCooldown > 0) {
-            tickCooldown--;
+        if (cooldown > 0) {
+            cooldown--;
             return;
         }
 
         LocalPlayer player = mc.player;
-        if (player == null || mc.gameMode == null) {
+        if (player == null || mc.gameMode == null || !player.isAlive() || player.isSpectator()) {
             return;
         }
-
-        if (!EnvironmentChecker.isAutoTotemAllowed()) {
+        // The swap goes through the player inventory menu, so it only makes sense while that one is open.
+        if (player.containerMenu != player.inventoryMenu) {
+            return;
+        }
+        if (!WorldFilter.isAllowed(mc)) {
             return;
         }
 
         AutoTotemConfig config = ConfigManager.get();
-
-        // Check health threshold
-        if (player.getHealth() > config.healthThreshold) {
+        if (player.getHealth() > config.healthThreshold || player.getOffhandItem().is(Items.TOTEM_OF_UNDYING)) {
             return;
         }
 
-        // Check if offhand already has a Totem
-        ItemStack offhand = player.getOffhandItem();
-        if (offhand.getItem() == Items.TOTEM_OF_UNDYING) {
+        int slot = findTotem(player.getInventory(), config.hotbarFirst);
+        if (slot == -1) {
             return;
         }
 
-        // Search inventory for totem
-        Inventory inv = player.getInventory();
-        int totemSlot = findTotemSlot(inv, config.hotbarFirst);
-        if (totemSlot == -1) {
-            return;
-        }
-
-        // Map inventory index to InventoryMenu container slot
-        // Slots 0-8 (hotbar) map to container slots 36-44
-        // Slots 9-35 (main inv) map to container slots 9-35
-        int containerSlot = (totemSlot < 9) ? (totemSlot + 36) : totemSlot;
-
-        // Perform slot swap with offhand (button 40 in ContainerInput.SWAP swaps with offhand)
-        mc.gameMode.handleContainerInput(
-                player.inventoryMenu.containerId,
-                containerSlot,
-                40,
-                ContainerInput.SWAP,
-                player
-        );
-
-        tickCooldown = config.swapDelayTicks;
+        // Hotbar slots 0-8 are menu slots 36-44, main inventory slots 9-35 map to themselves.
+        int menuSlot = slot < 9 ? slot + 36 : slot;
+        mc.gameMode.handleContainerInput(player.inventoryMenu.containerId, menuSlot, OFFHAND_BUTTON,
+                ContainerInput.SWAP, player);
+        cooldown = config.swapDelayTicks;
     }
 
-    private static int findTotemSlot(Inventory inv, boolean hotbarFirst) {
-        if (hotbarFirst) {
-            for (int i = 0; i < 9; i++) {
-                if (inv.getItem(i).getItem() == Items.TOTEM_OF_UNDYING) {
-                    return i;
-                }
+    private static int findTotem(Inventory inv, boolean hotbarFirst) {
+        int start = hotbarFirst ? 0 : 9;
+        for (int i = start; i < Inventory.INVENTORY_SIZE; i++) {
+            if (inv.getItem(i).is(Items.TOTEM_OF_UNDYING)) {
+                return i;
             }
         }
-
-        for (int i = 0; i < inv.getContainerSize(); i++) {
-            if (inv.getItem(i).getItem() == Items.TOTEM_OF_UNDYING) {
+        for (int i = 0; i < start; i++) {
+            if (inv.getItem(i).is(Items.TOTEM_OF_UNDYING)) {
                 return i;
             }
         }
