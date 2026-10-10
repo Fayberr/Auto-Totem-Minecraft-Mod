@@ -8,7 +8,7 @@ import net.fayber.autototem.config.ConfigManager;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
-/** Settings screen, only loaded when Cloth Config is installed. */
+/** Cloth Config version of the settings screen. Only loaded when Cloth Config is installed. */
 public final class AutoTotemClothScreen {
     private AutoTotemClothScreen() {}
 

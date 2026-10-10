@@ -23,7 +23,8 @@ needed on the server.
 ## Configuration
 
 Settings are stored in `config/autototem.json`. If Mod Menu is installed there is a
-settings screen, which needs Cloth Config.
+settings screen, built with Modern Config when that is installed and with Cloth
+Config otherwise.
 
 - `enableSingleplayer`, `enableMultiplayer`: where it is active.
 - `healthThreshold`: only swap at or below this health. `20` swaps right away.
@@ -38,7 +39,9 @@ settings screen, which needs Cloth Config.
 
 ## Building
 
-Needs JDK 25. Run `./gradlew build`.
+Needs JDK 25. Run `./gradlew build`. The Modern Config dependency is resolved from
+`mavenLocal()`, so publish it first with `./gradlew publishToMavenLocal` in the
+Modern Config repository.
 
 ## License
 
