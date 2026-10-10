@@ -8,56 +8,50 @@ import net.fayber.autototem.config.ConfigManager;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
+/** Cloth Config version of the settings screen. Only loaded when Cloth Config is installed. */
 public final class AutoTotemClothScreen {
     private AutoTotemClothScreen() {}
 
     public static Screen create(Screen parent) {
-        AutoTotemConfig config = ConfigManager.get();
+        AutoTotemConfig c = ConfigManager.get();
         ConfigBuilder builder = ConfigBuilder.create()
                 .setParentScreen(parent)
                 .setTitle(Component.literal("Auto Totem Settings"))
                 .setSavingRunnable(ConfigManager::save);
-
         ConfigEntryBuilder eb = builder.entryBuilder();
 
         ConfigCategory general = builder.getOrCreateCategory(Component.literal("General"));
-        general.addEntry(eb.startBooleanToggle(Component.literal("Master Toggle"), config.enabled)
+        general.addEntry(eb.startBooleanToggle(Component.literal("Enabled"), c.enabled)
                 .setDefaultValue(true)
-                .setTooltip(Component.literal("Global enable/disable toggle."))
-                .setSaveConsumer(val -> config.enabled = val)
+                .setSaveConsumer(v -> c.enabled = v)
                 .build());
-
-        ConfigCategory rules = builder.getOrCreateCategory(Component.literal("Environment Rules"));
-        rules.addEntry(eb.startBooleanToggle(Component.literal("Enable in Singleplayer"), config.enableSingleplayer)
+        general.addEntry(eb.startBooleanToggle(Component.literal("Singleplayer"), c.enableSingleplayer)
                 .setDefaultValue(true)
-                .setTooltip(Component.literal("Automatically equip totems in local singleplayer worlds."))
-                .setSaveConsumer(val -> config.enableSingleplayer = val)
+                .setTooltip(Component.literal("Equip totems in singleplayer worlds."))
+                .setSaveConsumer(v -> c.enableSingleplayer = v)
                 .build());
-
-        rules.addEntry(eb.startBooleanToggle(Component.literal("Enable in Multiplayer"), config.enableMultiplayer)
+        general.addEntry(eb.startBooleanToggle(Component.literal("Multiplayer"), c.enableMultiplayer)
                 .setDefaultValue(false)
-                .setTooltip(Component.literal("Equip totems on multiplayer servers (Disabled by default)."))
-                .setSaveConsumer(val -> config.enableMultiplayer = val)
+                .setTooltip(Component.literal("Equip totems on servers. Check the server rules first, some forbid automation."))
+                .setSaveConsumer(v -> c.enableMultiplayer = v)
                 .build());
 
-        ConfigCategory mechanics = builder.getOrCreateCategory(Component.literal("Mechanics"));
-        mechanics.addEntry(eb.startFloatField(Component.literal("Health Threshold"), config.healthThreshold)
+        ConfigCategory swap = builder.getOrCreateCategory(Component.literal("Swapping"));
+        swap.addEntry(eb.startFloatField(Component.literal("Health Threshold"), c.healthThreshold)
                 .setDefaultValue(20.0f)
                 .setMin(1.0f).setMax(20.0f)
-                .setTooltip(Component.literal("Only swap totem if player health is at or below this value (20 = always)."))
-                .setSaveConsumer(val -> config.healthThreshold = val)
+                .setTooltip(Component.literal("Only swap at or below this health. 20 swaps right away."))
+                .setSaveConsumer(v -> c.healthThreshold = v)
                 .build());
-
-        mechanics.addEntry(eb.startIntSlider(Component.literal("Swap Delay Ticks"), config.swapDelayTicks, 0, 20)
+        swap.addEntry(eb.startIntSlider(Component.literal("Delay (ticks)"), c.swapDelayTicks, 0, 20)
                 .setDefaultValue(2)
-                .setTooltip(Component.literal("Ticks between consecutive swaps to avoid rate limit flags."))
-                .setSaveConsumer(val -> config.swapDelayTicks = val)
+                .setTooltip(Component.literal("Ticks to wait after a swap."))
+                .setSaveConsumer(v -> c.swapDelayTicks = v)
                 .build());
-
-        mechanics.addEntry(eb.startBooleanToggle(Component.literal("Hotbar First"), config.hotbarFirst)
+        swap.addEntry(eb.startBooleanToggle(Component.literal("Hotbar First"), c.hotbarFirst)
                 .setDefaultValue(true)
-                .setTooltip(Component.literal("Prioritize using totems from hotbar before main inventory."))
-                .setSaveConsumer(val -> config.hotbarFirst = val)
+                .setTooltip(Component.literal("Take totems from the hotbar before the rest of the inventory."))
+                .setSaveConsumer(v -> c.hotbarFirst = v)
                 .build());
 
         return builder.build();
