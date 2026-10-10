@@ -1,7 +1,7 @@
 # Auto Totem - Modrinth page copy
 
-Source of truth for the text on https://modrinth.com/mod/auto-totem.
-Update here first, then run `modrinth copy auto-totem modrinth-page.md`.
+Source of truth for the text on https://modrinth.com/mod/fayber-auto-totem.
+Update here first, then run `modrinth copy fayber-auto-totem modrinth-page.md`.
 
 ## description
 
