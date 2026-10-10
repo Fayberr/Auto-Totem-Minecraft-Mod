@@ -3,7 +3,7 @@
 	"id": "autototem",
 	"version": "${version}",
 	"name": "Auto Totem",
-	"description": "Smart, customizable auto-totem mod with per-world, singleplayer, and multiplayer isolation.",
+	"description": "Moves a totem of undying into your offhand automatically. Client-side.",
 	"authors": [
 		"Fayber"
 	],

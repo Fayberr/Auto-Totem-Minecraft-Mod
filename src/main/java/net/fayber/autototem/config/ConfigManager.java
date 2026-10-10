@@ -3,15 +3,15 @@ package net.fayber.autototem.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.fabricmc.loader.api.FabricLoader;
+import net.fayber.autototem.AutoTotemClient;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class ConfigManager {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final File CONFIG_FILE = new File(FabricLoader.getInstance().getConfigDir().toFile(), "autototem.json");
+    private static final Path CONFIG_FILE = FabricLoader.getInstance().getConfigDir().resolve("autototem.json");
     private static AutoTotemConfig config = new AutoTotemConfig();
 
     public static AutoTotemConfig get() {
@@ -19,30 +19,34 @@ public class ConfigManager {
     }
 
     public static void load() {
-        if (!CONFIG_FILE.exists()) {
-            save();
-            return;
-        }
-        try (FileReader reader = new FileReader(CONFIG_FILE)) {
-            AutoTotemConfig loaded = GSON.fromJson(reader, AutoTotemConfig.class);
-            if (loaded != null) {
-                config = loaded;
+        if (Files.exists(CONFIG_FILE)) {
+            try {
+                AutoTotemConfig loaded = GSON.fromJson(Files.readString(CONFIG_FILE), AutoTotemConfig.class);
+                if (loaded != null) {
+                    config = loaded;
+                }
+            } catch (Exception e) {
+                AutoTotemClient.LOGGER.warn("Could not read {}, using defaults", CONFIG_FILE, e);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
+        save();
     }
 
     public static void save() {
+        AutoTotemConfig c = config;
+        c.healthThreshold = Math.max(1.0f, Math.min(20.0f, c.healthThreshold));
+        c.swapDelayTicks = Math.max(0, c.swapDelayTicks);
+        if (c.whitelistedWorlds == null) {
+            c.whitelistedWorlds = new java.util.ArrayList<>();
+        }
+        if (c.blacklistedWorlds == null) {
+            c.blacklistedWorlds = new java.util.ArrayList<>();
+        }
         try {
-            if (!CONFIG_FILE.getParentFile().exists()) {
-                CONFIG_FILE.getParentFile().mkdirs();
-            }
-            try (FileWriter writer = new FileWriter(CONFIG_FILE)) {
-                GSON.toJson(config, writer);
-            }
+            Files.createDirectories(CONFIG_FILE.getParent());
+            Files.writeString(CONFIG_FILE, GSON.toJson(c));
         } catch (IOException e) {
-            e.printStackTrace();
+            AutoTotemClient.LOGGER.error("Could not write {}", CONFIG_FILE, e);
         }
     }
 }
