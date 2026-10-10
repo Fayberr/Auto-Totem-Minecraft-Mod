@@ -25,5 +25,5 @@ Moves a Totem of Undying from your inventory into your offhand whenever the offh
 
 - Client-side only. Nothing needs to be installed on the server.
 - Some servers do not allow automation, so check the rules before enabling it in multiplayer.
-- Requires Fabric API. Minecraft 26.3.
+- Requires Fabric API.
 - Config file: `config/autototem.json`.
